@@ -52,7 +52,7 @@ onMounted(() => {
         ></v-img>
       </router-link>
       <v-toolbar-title class="title">
-        {{ title }}
+        {{}}
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <div v-if="user">
