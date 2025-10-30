@@ -12,3 +12,4 @@ import MenuBar from "./components/MenuBar.vue";
     </v-main>
   </v-app>
 </template>
+  
