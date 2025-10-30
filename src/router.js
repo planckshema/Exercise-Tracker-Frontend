@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import Login from "./views/Login.vue";
 
+import Exercise from "./views/Exercise.vue";
+import Nutrient from "./views/Nutrient.vue";
+import Athlete from "./views/Athlete.vue";
 import TutorialsList from "./views/TutorialsList.vue";
 import EditTutorial from "./views/EditTutorial.vue";
 import AddTutorial from "./views/AddTutorial.vue";
@@ -17,6 +20,21 @@ const router = createRouter({
       alias: "/login",
       name: "login",
       component: Login,
+    },
+     {
+      path: "/exercises",
+      name: "exercises",
+      component: Exercise,
+    },
+    {
+      path: "/nutrients",
+      name: "nutrients",
+      component: Nutrient,
+    },
+    {
+      path: "/athletes",
+      name: "athletes",
+      component: Athlete,
     },
     {
       path: "/tutorials",
