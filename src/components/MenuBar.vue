@@ -68,6 +68,9 @@ onMounted(() => {
       <v-list-item :to="{ name: 'athletes' }">
         <v-list-item-title>Athletes</v-list-item-title>
       </v-list-item>
+      <v-list-item :to="{ name: 'coaches' }">
+        <v-list-item-title>Coaches</v-list-item-title>
+      </v-list-item>
     </v-list>
 
     <!-- Divider -->
