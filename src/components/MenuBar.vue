@@ -44,7 +44,7 @@ onMounted(() => {
     <v-navigation-drawer app permanent width="260">
     <!-- Logo and Title -->
     <div class="d-flex align-center pa-4">
-      <router-link :to="{ name: 'tutorials' }">
+      <router-link :to="{ name: 'calendar' }">
         <v-img :src="logoURL" height="40" width="40" class="mr-2" />
       </router-link>
       <span class="text-h6 font-weight-bold">{{ title }}</span>
