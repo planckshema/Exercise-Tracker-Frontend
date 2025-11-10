@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Login from "./views/Login.vue";
-
+import Coach from "./views/Coaches.vue";
 import Exercise from "./views/Exercise.vue";
 import Nutrient from "./views/Nutrient.vue";
 import Athlete from "./views/Athlete.vue";
@@ -35,6 +35,11 @@ const router = createRouter({
       path: "/athletes",
       name: "athletes",
       component: Athlete,
+    },
+     {
+      path: "/coaches",
+      name: "coaches",
+      component: Coach,
     },
     {
       path: "/tutorials",

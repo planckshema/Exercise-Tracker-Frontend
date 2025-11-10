@@ -6,7 +6,7 @@ const pageTitle = ref("Athlete Dashboard"); // Change to "Athlete Dashboard" for
 
 <template>
   <v-container fluid>
-    <v-row justify="center" align="center" style="height: 80vh;">
+    <v-row justify="center" align ="center" style="height: 80vh;">
       <v-col cols="12" md="8" lg="6">
         <v-card elevation="2" class="pa-6 text-center">
           <v-card-title class="text-h5 font-weight-bold">
