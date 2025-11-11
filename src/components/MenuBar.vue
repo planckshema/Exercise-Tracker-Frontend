@@ -1,5 +1,5 @@
 <script setup>
-import ocLogo from "/oc-logo-white.png";            ////CHANGE THIS TO YOUR OWN LOGO
+import forgeFitLogo from "/ForgeFitLogo1.png";            ////CHANGE THIS TO YOUR OWN LOGO
 import { ref, onMounted } from "vue";
 import Utils from "../config/utils";
 import AuthServices from "../services/authServices";
@@ -7,7 +7,7 @@ import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const user = ref(null);
-const title = ref("MyFitness");
+const title = ref("Forge Fitness");
 const initials = ref("");
 const name = ref("");
 const logoURL = ref("");
@@ -24,17 +24,23 @@ const resetMenu = () => {
 const logout = () => {
   AuthServices.logoutUser(user.value)
     .then((response) => {
-      
       Utils.removeItem("user");
       router.push({ name: "login" });
     })
     .catch((error) => {
       console.log("error", error);
+      // Still force clear if backend fails
+      Utils.removeItem("user");
+      localStorage.clear();
+      user.value = null;
+      initials.value = "";
+      name.value = "";
+      router.push({ name: "login" });
     });
 };
 
 onMounted(() => {
-  logoURL.value = ocLogo;
+  logoURL.value = forgeFitLogo;
   resetMenu();
 });
 </script>
@@ -45,7 +51,7 @@ onMounted(() => {
     <!-- Logo and Title -->
     <div class="d-flex align-center pa-4">
       <router-link :to="{ name: 'tutorials' }">
-        <v-img :src="logoURL" height="40" width="40" class="mr-2" />
+        <v-img :src="logoURL" height="80" width="80" class="mr-2" />
       </router-link>
       <span class="text-h6 font-weight-bold">{{ title }}</span>
     </div>

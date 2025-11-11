@@ -5,9 +5,9 @@ import Router from "../router.js";
 
 var baseurl = "";
 if (import.meta.env.DEV) {
-  baseurl = "http://localhost/tutorial/";
+  baseurl = "http://localhost/tracker-t8/";
 } else {
-  baseurl = "/tutorial/";
+  baseurl = "/tracker-t8/";
 }
 
 const apiClient = axios.create({
@@ -38,6 +38,7 @@ const apiClient = axios.create({
         .then((response) => {
           console.log(response);
           Utils.removeItem("user");
+          localStorage.clear();
           Router.push({ name: "login" });
         })
         .catch((error) => {
