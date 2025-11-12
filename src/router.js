@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 import Login from "./views/Login.vue";
+import CoachOrAthlete from "./views/CoachOrAthlete.vue";
+import NewCoachUser from "./views/NewCoachUser.vue";
 import Coach from "./views/Coaches.vue";
 import Exercise from "./views/Exercise.vue";
 import Nutrient from "./views/Nutrient.vue";
+import NewAthleteUser from "./views/NewAthleteUser.vue";
 import Athlete from "./views/Athlete.vue";
 import TutorialsList from "./views/TutorialsList.vue";
 import EditTutorial from "./views/EditTutorial.vue";
@@ -21,6 +24,11 @@ const router = createRouter({
       name: "login",
       component: Login,
     },
+    {
+      path: "/coachOrAthlete",
+      name: "coachOrAthlete",
+      component: CoachOrAthlete,
+    },
      {
       path: "/exercises",
       name: "exercises",
@@ -32,9 +40,19 @@ const router = createRouter({
       component: Nutrient,
     },
     {
+      path: "/newAthlete",
+      name: "newAthlete",
+      component: NewAthleteUser,
+    },
+    {
       path: "/athletes",
       name: "athletes",
       component: Athlete,
+    },
+    {
+      path: "/newCoach",
+      name: "newCoach",
+      component: NewCoachUser,
     },
      {
       path: "/coaches",
