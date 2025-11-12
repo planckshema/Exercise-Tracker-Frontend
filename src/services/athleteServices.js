@@ -1,19 +1,26 @@
 import apiClient from "./services.js";
 
 export default {
-  getAllAthletes(coachId) {
-    return apiClient.get(`/coachs/${coachId}/athletes`);
+  getAll() {
+    return apiClient.get("/athletes");
   },
-  getAthlete(coachId, id) {
-    return apiClient.get(`/coachs/${coachId}/athletes/${id}`);
+  getAllForUser(userId) {
+    return apiClient.get("/athletes/userTut/" + userId);
   },
-  createAthlete(coachId, data) {
-    return apiClient.post(`/coachs/${coachId}/athletes`, data);
+  get(id) {
+    return apiClient.get(`/athletes/${id}`);
   },
-  updateAthlete(coachId, id, data) {
-    return apiClient.put(`/coachs/${coachId}/athletes/${id}`, data);
+  create(data) {
+    return apiClient.post("/athletes", data);
   },
-  deleteAthlete(coachId, id) {
-    return apiClient.delete(`/coachs/${coachId}/athletes/${id}`);
+  update(id, data) {
+    return apiClient.put(`/athletes/${id}`, data);
   },
+  delete(id) {
+    return apiClient.delete(`/athletes/${id}`);
+  },
+  deleteAll() {
+    return apiClient.delete(`/athletes`);
+  },
+
 };
