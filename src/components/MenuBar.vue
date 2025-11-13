@@ -26,6 +26,7 @@ const logout = () => {
     .then((response) => {
       
       Utils.removeItem("user");
+      localStorage.clear();
       router.push({ name: "login" });
     })
     .catch((error) => {
