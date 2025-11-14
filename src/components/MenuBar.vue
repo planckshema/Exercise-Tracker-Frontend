@@ -1,5 +1,5 @@
 <script setup>
-import forgeFitLogo from "/ForgeFitLogo1.png";            ////CHANGE THIS TO YOUR OWN LOGO
+import forgeFitLogo from "/ForgeFitLogo1.png";
 import { ref, onMounted } from "vue";
 import Utils from "../config/utils";
 import AuthServices from "../services/authServices";
@@ -11,6 +11,7 @@ const title = ref("Forge Fitness");
 const initials = ref("");
 const name = ref("");
 const logoURL = ref("");
+
 
 const resetMenu = () => {
   user.value = null;
@@ -48,50 +49,62 @@ onMounted(() => {
 <template>
   <div>
     <v-navigation-drawer app permanent width="260">
-    <!-- Logo and Title -->
-    <div class="d-flex align-center pa-4">
-      <router-link :to="{ name: 'exercises' }">
-        <v-img :src="logoURL" height="80" width="80" class="mr-2" />
-      </router-link>
-      <span class="text-h6 font-weight-bold">{{ title }}</span>
-    </div>
+      <!-- Logo and Title -->
+      <div class="d-flex align-center pa-4">
+        <router-link :to="{ name: 'exercises' }">
+          <v-img :src="logoURL" height="80" width="80" class="mr-2" />
+        </router-link>
+        <span class="text-h6 font-weight-bold">{{ title }}</span>
+      </div>
 
-    <!-- Navigation Buttons -->
-    <v-list dense nav>
-      <v-list-item :to="{ name: 'exercises' }">
-        <v-list-item-title>Fitness</v-list-item-title>
-      </v-list-item>
-      <!-- Expandable Fitness Section -->
-      <v-list-group value="true">
-        <v-list-item :to="{ name: 'exercises' }">
-          <v-list-item-title>Cardio</v-list-item-title>
+
+      <v-list dense nav>
+        <v-list-group>
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props">
+              <v-list-item-title>Fitness</v-list-item-title>
+            </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'exercises' }">
+            <v-list-item-title>Cardio</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+
+        <v-list-group>
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props">
+              <v-list-item-title>My Athletes</v-list-item-title>
+            </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'athletes' }">
+            <v-list-item-title>My Athletes</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'searchAthlete' }">
+            <v-list-item-title>Find Athletes</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+        
+        <v-list-item :to="{ name: 'coaches' }">
+          <v-list-item-title>Coaches</v-list-item-title>
         </v-list-item>
-      </v-list-group>
 
-      <v-list-item :to="{ name: 'nutrients' }">
-        <v-list-item-title>Nutrients</v-list-item-title>
-      </v-list-item>
-      <v-list-item :to="{ name: 'athletes' }">
-        <v-list-item-title>Athletes</v-list-item-title>
-      </v-list-item>
-      <v-list-item :to="{ name: 'coaches' }">
-        <v-list-item-title>Coaches</v-list-item-title>
-      </v-list-item>
-    </v-list>
+        <v-list-item :to="{ name: 'nutrients' }">
+          <v-list-item-title>Nutrients</v-list-item-title>
+        </v-list-item>
+      </v-list>
 
-    <!-- Divider -->
-    <v-divider class="my-4" />
+      <v-divider class="my-4" />
 
-    <!-- User Info & Logout -->
-    <div v-if="user" class="pa-4">
-      <v-avatar color="secondary" class="mb-2">
-        <span class="accent--text font-weight-bold">{{ initials }}</span>
-      </v-avatar>
-      <div class="text-subtitle-1 font-weight-medium">{{ name }}</div>
-      <div class="text-caption mb-2">{{ user.email }}</div>
-      <v-btn block color="primary" @click="logout">Logout</v-btn>
-    </div>
-  </v-navigation-drawer>
+      <!-- User Info & Logout -->
+      <div v-if="user" class="pa-4">
+        <v-avatar color="secondary" class="mb-2">
+          <span class="accent--text font-weight-bold">{{ initials }}</span>
+        </v-avatar>
+        <div class="text-subtitle-1 font-weight-medium">{{ name }}</div>
+        <div class="text-caption mb-2">{{ user.email }}</div>
+        <v-btn block color="primary" @click="logout">Logout</v-btn>
+      </div>
+    </v-navigation-drawer>
     <!-- <v-app-bar app>
       <router-link :to="{ name: 'tutorials' }">
         <v-img
