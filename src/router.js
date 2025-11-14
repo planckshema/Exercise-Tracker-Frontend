@@ -7,6 +7,7 @@ import Coach from "./views/Coaches.vue";
 import Exercise from "./views/Exercise.vue";
 import Nutrient from "./views/Nutrient.vue";
 import NewAthleteUser from "./views/NewAthleteUser.vue";
+import SearchAthlete from "./views/SearchAthlete.vue";
 import Athlete from "./views/Athlete.vue";
 import TutorialsList from "./views/TutorialsList.vue";
 import EditTutorial from "./views/EditTutorial.vue";
@@ -48,6 +49,11 @@ const router = createRouter({
       path: "/athletes",
       name: "athletes",
       component: Athlete,
+    },
+     {
+      path: "/searchAthlete",
+      name: "searchAthlete",
+      component: SearchAthlete,
     },
     {
       path: "/newCoach",
