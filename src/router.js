@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Login from "./views/Login.vue";
 import CoachOrAthlete from "./views/CoachOrAthlete.vue";
 import NewCoachUser from "./views/NewCoachUser.vue";
+import SearchCoach from "./views/SearchCoach.vue";
 import Coach from "./views/Coaches.vue";
 import Exercise from "./views/Exercise.vue";
 import Nutrient from "./views/Nutrient.vue";
@@ -64,6 +65,11 @@ const router = createRouter({
       path: "/coaches",
       name: "coaches",
       component: Coach,
+    },
+    {
+      path: "/searchCoach",
+      name: "searchCoach",
+      component: SearchCoach,
     },
     {
       path: "/tutorials",

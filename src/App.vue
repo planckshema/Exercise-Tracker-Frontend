@@ -6,7 +6,8 @@ import MenuBar from "./components/MenuBar.vue";
 
 <template>
   <v-app>
-    <MenuBar :key="$route.fullPath" />
+    <MenuBar v-if="$route.name !== 'login' && $route.name !== 'coachOrAthlete' && $route.name !== 'newAthlete' && $route.name !== 'newCoach'" :key="$route.fullPath" />
+    <!-- <MenuBar :key="$route.fullPath" /> -->
     <v-main>
       <router-view />
     </v-main>

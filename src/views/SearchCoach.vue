@@ -16,7 +16,7 @@ const requests = ref([]);
 const searchQuery = ref("");
 const page = ref(1);
 const itemsPerPage = ref(10);
-const message = ref("Search for athletes by name, sport, or email");
+const message = ref("Search for coaches by name, sport, or email");
 
 
 const retrieveAthletes = () => {
@@ -40,9 +40,9 @@ const retrieveCoaches = () => {
 };
 
 const retrieveRequests = () => {
-  const coach = coaches.value.find(c => c.email === user.email);
-  if (!coach) return;
-  CoachAthleteServices.getAthletesForCoach(coach.id)
+  const athlete = athletes.value.find(a => a.email === user.email);
+  if (!athlete) return;
+  CoachAthleteServices.getCoachesForAthlete(athlete.id)
     .then((res) => {
       requests.value = res.data;
     })
@@ -51,37 +51,37 @@ const retrieveRequests = () => {
     });
 };
 
-const getRequestStatus = (athleteId) => {
-  const req = requests.value.find(r => r.athleteId === athleteId);
+const getRequestStatus = (coachId) => {
+  const req = requests.value.find(r => r.coachId === coachId);
   return req ? req.status : "open";
 };
 
-const hasRequest = (athleteId) => {
-  return requests.value.some(r => r.athleteId === athleteId);
+const hasRequest = (coachId) => {
+  return requests.value.some(r => r.coachId === coachId);
 };
 
-const filteredAthletes = computed(() => {
+const filteredCoaches = computed(() => {
   const query = searchQuery.value.toLowerCase();
-  return athletes.value.filter((athlete) =>
-    (athlete.firstName?.toLowerCase() || "").includes(query) ||
-    (athlete.lastName?.toLowerCase() || "").includes(query) ||
-    (athlete.email?.toLowerCase() || "").includes(query)
+  return coaches.value.filter((coach) =>
+    (coach.firstName?.toLowerCase() || "").includes(query) ||
+    (coach.lastName?.toLowerCase() || "").includes(query) ||
+    (coach.email?.toLowerCase() || "").includes(query)
   );
 });
-const paginatedAthletes = computed(() => {
+const paginatedCoaches = computed(() => {
   const start = (page.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return filteredAthletes.value.slice(start, end);
+  return filteredCoaches.value.slice(start, end);
 });
 
 watch(searchQuery, () => {
   page.value = 1;
 });
 
-const requestToCoach = (athlete) => {
-  const coach = coaches.value.find(c => c.email === user.email);
-  if (!coach) {
-    message.value = "Coach not found for this user.";
+const requestForCoach = (coach) => {
+  const athlete = athletes.value.find(a => a.email === user.email);
+  if (!athlete) {
+    message.value = "Athlete not found for this user.";
     return;
   }
   CoachAthleteServices.create({
@@ -89,7 +89,7 @@ const requestToCoach = (athlete) => {
     athleteId: athlete.id,
     sport: athlete.sport,
     status: "pending",
-    initiator: "coach"
+    initiator: "athlete"
   })
     .then(() => {
       message.value = `Request sent to ${athlete.firstName} ${athlete.lastName}.`;
@@ -100,27 +100,27 @@ const requestToCoach = (athlete) => {
     });
 };
 
-const getActionsForRequest = (athleteId) => {
-  const req = requests.value.find(r => r.athleteId === athleteId);
+const getActionsForRequest = (coachId) => {
+  const req = requests.value.find(r => r.coachId === coachId);
   if (!req) return "none";
 
   const currentCoach = coaches.value.find(c => c.email === user.email);
   const currentAthlete = athletes.value.find(a => a.email === user.email);
 
   if (req.status === "pending") {
-    if (req.initiator === "coach" && currentCoach) return "cancel";
     if (req.initiator === "athlete" && currentAthlete) return "cancel";
-    if (req.initiator === "coach" && currentAthlete) return "acceptReject";
+    if (req.initiator === "coach" && currentCoach) return "cancel";
     if (req.initiator === "athlete" && currentCoach) return "acceptReject";
+    if (req.initiator === "coach" && currentAthlete) return "acceptReject";
   }
   return "none";
 };
 
-const acceptRequest = (athlete) => {
-  const coach = coaches.value.find(c => c.email === user.email);
+const acceptRequest = (coach) => {
+  const athlete = athletes.value.find(a => a.email === user.email);
   CoachAthleteServices.update(coach.id, athlete.id, { status: "accepted" })
     .then(() => {
-      message.value = `Request from ${athlete.firstName} accepted.`;
+      message.value = `Request from ${coach.firstName} accepted.`;
       retrieveRequests();
     })
     .catch((e) => {
@@ -128,8 +128,8 @@ const acceptRequest = (athlete) => {
     });
 };
 
-const rejectRequest = (athlete) => {
-  const coach = coaches.value.find(c => c.email === user.email);
+const rejectRequest = (coach) => {
+  const athlete = athletes.value.find(a => a.email === user.email);
   CoachAthleteServices.update(coach.id, athlete.id, { status: "rejected" })
     .then(() => {
       message.value = `Request from ${coach.firstName} rejected.`;
@@ -140,18 +140,18 @@ const rejectRequest = (athlete) => {
     });
 };
 
-const cancelRequest = (athlete) => {
-  const coach = coaches.value.find(c => c.email === user.email);
-  if (!coach) {
-    message.value = "Coach not found for this user.";
+const cancelRequest = (coach) => {
+  const athlete = athletes.value.find(a => a.email === user.email);
+  if (!athlete) {
+    message.value = "Athlete not found for this user.";
     return;
   }
 
-  const req = requests.value.find(r => r.athleteId === athlete.id);
+  const req = requests.value.find(r => r.coachId === coach.id);
   if (!req) return;
   CoachAthleteServices.delete(coach.id, athlete.id)
     .then(() => {
-      message.value = `Request to ${athlete.firstName} canceled.`;
+      message.value = `Request to ${coach.firstName} canceled.`;
       retrieveRequests();
     })
     .catch((e) => {
@@ -170,7 +170,7 @@ setTimeout(retrieveRequests, 500);
     <v-text-field v-model="searchQuery" label="Search by Name or Email" prepend-icon="mdi-magnify" class="mb-4" />
 
     <v-card>
-      <v-card-title> Find Athletes </v-card-title>
+      <v-card-title> Find Coaches </v-card-title>
       <v-card-text>
         <b>{{ message }}</b>
       </v-card-text>
@@ -186,35 +186,49 @@ setTimeout(retrieveRequests, 500);
           </tr>
         </thead>
         <tbody>
-          <tr v-for="athlete in paginatedAthletes" :key="athlete.id">
-            <td>{{ athlete.firstName }} {{ athlete.lastName }}</td>
-            <td>{{ athlete.email }}</td>
-            <td>{{ athlete.sport }}</td>
-            <td>{{ getRequestStatus(athlete.id) }}</td>
+          <tr v-for="coach in paginatedCoaches" :key="coach.id">
+            <td>{{ coach.firstName }} {{ coach.lastName }}</td>
+            <td>{{ coach.email }}</td>
+            <td>{{ coach.sport }}</td>
+            <!-- <td>{{ "open" }}</td>
+                        <td>
+                            <v-btn color="success" @click="requestForCoach(athlete)">
+                                Request to Coach
+                            </v-btn>
+                        </td> -->
+            <td>{{ getRequestStatus(coach.id) }}</td>
+            <!-- <td>
+              <v-btn v-if="!hasRequest(coach.id)" color="success" @click="requestForCoach(coach)">
+                Request Coach
+              </v-btn>
+              <v-btn v-else color="error" @click="cancelRequest(coach)">
+                Cancel Request
+              </v-btn>
+            </td> -->
             <td>
               <!-- No request yet -->
-              <v-btn v-if="getActionsForRequest(athlete.id) === 'none'" color="success"
-                @click="requestToCoach(athlete)">
+              <v-btn v-if="getActionsForRequest(coach.id) === 'none'" color="success"
+                @click="requestToCoach(coach)">
                 Request to Coach
               </v-btn>
 
               <!-- Cancel if current user initiated -->
-              <v-btn v-else-if="getActionsForRequest(athlete.id) === 'cancel'" color="error"
-                @click="cancelRequest(athlete)">
+              <v-btn v-else-if="getActionsForRequest(coach.id) === 'cancel'" color="error"
+                @click="cancelRequest(coach)">
                 Cancel Request
               </v-btn>
 
               <!-- Accept/Reject if other side initiated -->
-              <div v-else-if="getActionsForRequest(athlete.id) === 'acceptReject'">
-                <v-btn color="success" @click="acceptRequest(athlete)">Accept</v-btn>
-                <v-btn color="error" @click="rejectRequest(athlete)">Reject</v-btn>
+              <div v-else-if="getActionsForRequest(coach.id) === 'acceptReject'">
+                <v-btn color="success" @click="acceptRequest(coach)">Accept</v-btn>
+                <v-btn color="error" @click="rejectRequest(coach)">Reject</v-btn>
               </div>
             </td>
           </tr>
         </tbody>
       </v-table>
 
-      <v-pagination v-model="page" :length="Math.ceil(filteredAthletes.length / itemsPerPage)" class="mt-4" />
+      <v-pagination v-model="page" :length="Math.ceil(filteredCoaches.length / itemsPerPage)" class="mt-4" />
     </v-card>
   </v-container>
 </template>

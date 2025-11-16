@@ -14,15 +14,18 @@ import "@mdi/font/css/materialdesignicons.css";
 const myCustomLightTheme = {
   dark: false,
   colors: {
-    primary: "#80162B",
-    secondary: "#E1E1E1",
-    accent: "#47121D",
-    success: "#47121D",
+    primary: "#FF4500", //flame orange
+    secondary: "#FFD700", //golden yellow
+    accent: "#FF6347", //tomato red
+    success: "#FF8C00", // dark orange
     error: "#EE5044",
     teal: "#63BAC0",
     blue: "#196CA2",
     yellow: "#F8C545",
     darkblue: "#032F45",
+    fireRed: "#FF0000",
+    fireOrange: "#FF6A00",
+    fireYellow: "#FFC107",
   },
 };
 
