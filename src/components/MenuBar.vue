@@ -70,10 +70,10 @@ onMounted(() => {
           </v-list-item>
         </v-list-group>
 
-        <v-list-group>
+        <v-list-group v-if="user && user.isCoach">
           <template v-slot:activator="{ props }">
             <v-list-item v-bind="props">
-              <v-list-item-title>My Athletes</v-list-item-title>
+              <v-list-item-title>Athletes</v-list-item-title>
             </v-list-item>
           </template>
           <v-list-item :to="{ name: 'athletes' }">
@@ -83,11 +83,21 @@ onMounted(() => {
             <v-list-item-title>Find Athletes</v-list-item-title>
           </v-list-item>
         </v-list-group>
-        
-        <v-list-item :to="{ name: 'coaches' }">
-          <v-list-item-title>Coaches</v-list-item-title>
-        </v-list-item>
 
+        <v-list-group v-if="user && user.isAthlete">
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props">
+              <v-list-item-title>Coaches</v-list-item-title>
+            </v-list-item>
+          </template>
+          <v-list-item :to="{ name: 'coaches' }">
+            <v-list-item-title>My Coaches</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="{ name: 'searchCoach' }">
+            <v-list-item-title>Find Coaches</v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+    
         <v-list-item :to="{ name: 'nutrients' }">
           <v-list-item-title>Nutrients</v-list-item-title>
         </v-list-item>

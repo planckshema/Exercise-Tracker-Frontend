@@ -4,8 +4,8 @@ export default {
   getAll() {
     return apiClient.get("/athletes");
   },
-  getAllForUser(userId) {
-    return apiClient.get("/athletes/userTut/" + userId);
+  getAllForUser(email) {
+    return apiClient.get("/athletes/userTut/" + email);
   },
   get(id) {
     return apiClient.get(`/athletes/${id}`);
