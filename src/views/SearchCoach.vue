@@ -109,9 +109,12 @@ const getActionsForRequest = (coachId) => {
 
   if (req.status === "pending") {
     if (req.initiator === "athlete" && currentAthlete) return "cancel";
-    if (req.initiator === "coach" && currentCoach) return "cancel";
-    if (req.initiator === "athlete" && currentCoach) return "acceptReject";
+    //if (req.initiator === "coach" && currentCoach) return "cancel";
+    //if (req.initiator === "athlete" && currentCoach) return "acceptReject";
     if (req.initiator === "coach" && currentAthlete) return "acceptReject";
+  }
+  if (req.status === "accepted") {
+    return "remove";
   }
   return "none";
 };
@@ -190,30 +193,16 @@ setTimeout(retrieveRequests, 500);
             <td>{{ coach.firstName }} {{ coach.lastName }}</td>
             <td>{{ coach.email }}</td>
             <td>{{ coach.sport }}</td>
-            <!-- <td>{{ "open" }}</td>
-                        <td>
-                            <v-btn color="success" @click="requestForCoach(athlete)">
-                                Request to Coach
-                            </v-btn>
-                        </td> -->
             <td>{{ getRequestStatus(coach.id) }}</td>
-            <!-- <td>
-              <v-btn v-if="!hasRequest(coach.id)" color="success" @click="requestForCoach(coach)">
-                Request Coach
-              </v-btn>
-              <v-btn v-else color="error" @click="cancelRequest(coach)">
-                Cancel Request
-              </v-btn>
-            </td> -->
             <td>
               <!-- No request yet -->
-              <v-btn v-if="getActionsForRequest(coach.id) === 'none'" color="success"
-                @click="requestToCoach(coach)">
-                Request to Coach
+              <v-btn v-if="getActionsForRequest(coach.id) === 'none'" color="fireOrange"
+                @click="requestForCoach(coach)">
+                Request For Coach
               </v-btn>
 
               <!-- Cancel if current user initiated -->
-              <v-btn v-else-if="getActionsForRequest(coach.id) === 'cancel'" color="error"
+              <v-btn v-else-if="getActionsForRequest(coach.id) === 'cancel'" color="secondary"
                 @click="cancelRequest(coach)">
                 Cancel Request
               </v-btn>
@@ -223,6 +212,12 @@ setTimeout(retrieveRequests, 500);
                 <v-btn color="success" @click="acceptRequest(coach)">Accept</v-btn>
                 <v-btn color="error" @click="rejectRequest(coach)">Reject</v-btn>
               </div>
+
+              <!-- Remove if relationship is accepted -->
+              <v-btn v-else-if="getActionsForRequest(athlete.id) === 'remove'" color="fireRed"
+                @click="cancelRequest(athlete)">
+                Remove Coach
+              </v-btn>
             </td>
           </tr>
         </tbody>

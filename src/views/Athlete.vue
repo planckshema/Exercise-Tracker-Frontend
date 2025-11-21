@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import AthleteServices from "../services/athleteServices";
+import CoachAthleteServices from "../services/coachAthleteServices";
 import Utils from "../config/utils.js";
 
 const user = Utils.getStore("user");

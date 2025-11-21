@@ -21,7 +21,6 @@ const myCustomLightTheme = {
     error: "#EE5044",
     teal: "#63BAC0",
     blue: "#196CA2",
-    yellow: "#F8C545",
     darkblue: "#032F45",
     fireRed: "#FF0000",
     fireOrange: "#FF6A00",
