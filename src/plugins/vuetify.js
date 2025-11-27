@@ -19,12 +19,12 @@ const myCustomLightTheme = {
     accent: "#FF6347", //tomato red
     success: "#FF8C00", // dark orange
     error: "#EE5044",
-    teal: "#63BAC0",
-    blue: "#196CA2",
-    darkblue: "#032F45",
+    goldenRod: "#DAA520",
+    deepRed: "#B22222",
     fireRed: "#FF0000",
     fireOrange: "#FF6A00",
-    fireYellow: "#FFC107",
+    mahogany: "#C04000",
+    darkBrownCharcoal:"#2B1B17",
   },
 };
 
