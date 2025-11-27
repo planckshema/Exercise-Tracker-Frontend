@@ -3,6 +3,7 @@ import forgeFitLogo from "/ForgeFitLogo1.png";
 import { ref, onMounted } from "vue";
 import Utils from "../config/utils";
 import AuthServices from "../services/authServices";
+import ExerciseCategoryServices from "../services/exerciseCategoryServices";
 import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
@@ -11,6 +12,7 @@ const title = ref("Forge Fitness");
 const initials = ref("");
 const name = ref("");
 const logoURL = ref("");
+const categories = ref([]);
 
 
 const resetMenu = () => {
@@ -40,9 +42,20 @@ const logout = () => {
     });
 };
 
+const loadCategories = () => {
+  ExerciseCategoryServices.getAll()
+    .then((res) => {
+      categories.value = res.data;
+    })
+    .catch((e) => {
+      message.value = e.response?.data?.message || "Failed to load coaches.";
+    });
+};
+
 onMounted(() => {
   logoURL.value = forgeFitLogo;
   resetMenu();
+  loadCategories();
 });
 </script>
 
@@ -65,9 +78,17 @@ onMounted(() => {
               <v-list-item-title>Fitness</v-list-item-title>
             </v-list-item>
           </template>
-          <v-list-item :to="{ name: 'exercises' }">
-            <v-list-item-title>Cardio</v-list-item-title>
+
+          <v-list-item v-for="cat in categories" :key="cat.id"
+            :to="{ name: 'exercises', params: { categoryId: cat.id } }"
+            >
+            <v-list-item-title>{{ cat.name }}</v-list-item-title>
           </v-list-item>
+
+
+          <!-- <v-list-item :to="{ name: 'exercises' }">
+            <v-list-item-title>Cardio</v-list-item-title>
+          </v-list-item> -->
         </v-list-group>
 
         <v-list-group v-if="user && user.isCoach">
@@ -97,7 +118,7 @@ onMounted(() => {
             <v-list-item-title>Find Coaches</v-list-item-title>
           </v-list-item>
         </v-list-group>
-    
+
         <v-list-item :to="{ name: 'nutrients' }">
           <v-list-item-title>Nutrients</v-list-item-title>
         </v-list-item>

@@ -196,13 +196,13 @@ setTimeout(retrieveRequests, 500);
             <td>{{ getRequestStatus(athlete.id) }}</td>
             <td>
               <!-- No request yet -->
-              <v-btn v-if="getActionsForRequest(athlete.id) === 'none'" color="fireOrange"
+              <v-btn v-if="getActionsForRequest(athlete.id) === 'none'" color="success"
                 @click="requestToCoach(athlete)">
                 Request To Coach
               </v-btn>
 
               <!-- Cancel if current user initiated -->
-              <v-btn v-else-if="getActionsForRequest(athlete.id) === 'cancel'" color="secondary"
+              <v-btn v-else-if="getActionsForRequest(athlete.id) === 'cancel'" color="accent"
                 @click="cancelRequest(athlete)">
                 Cancel Request
               </v-btn>
@@ -214,7 +214,7 @@ setTimeout(retrieveRequests, 500);
               </div>
 
               <!-- Remove if relationship is accepted -->
-              <v-btn v-else-if="getActionsForRequest(athlete.id) === 'remove'" color="fireRed"
+              <v-btn v-else-if="getActionsForRequest(athlete.id) === 'remove'" color="primary"
                 @click="cancelRequest(athlete)">
                 Remove Coach
               </v-btn>
