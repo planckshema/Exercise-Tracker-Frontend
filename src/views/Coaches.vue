@@ -1,4 +1,4 @@
-<script setup>
+r<script setup>
 import { ref } from "vue";
 import CoachTable from "../components/CoachTable.vue";
 import { reactive } from "vue";

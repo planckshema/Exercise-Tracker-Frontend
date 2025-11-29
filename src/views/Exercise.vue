@@ -1,49 +1,42 @@
 <script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import ExerciseServices from "../services/exerciseServices";
 
 
+const route = useRoute();
 const router = useRouter();
-const activeSection = ref("Exercises");
+const selectedCategoryId = ref(null);
 
-const menuItems = [
-  { title: "Home" },
-  { title: "Clients" },
-  { title: "Messages" },
-  { title: "Check-ins" },
-  {
-    title: "Fitness",
-    children: ["Exercises", "Workouts", "Cardio", "Schedules"]
-  },
-  { title: "Nutrition" },
-  { title: "Explore" },
-  { title: "Live" },
-  { title: "Payment Plans" },
-  { title: "Refer & Earn" }
-];
-
-
-const exercises = ref([
-  {
-    id: 1,
-    name: "Barbell Overhead Press (Front)",
-    muscleGroups: ["Anterior Delts", "Lateral Delts", "Triceps", "Serratus Anterior"],
-    targetAreas: ["Shoulders", "Triceps"],
-    tracking: "Repetitions",
-    image: "placeholder.svg"
-  },
-  {
-    id: 2,
-    name: "Cable Biceps Curl",
-    muscleGroups: ["Biceps"],
-    targetAreas: ["Arms"],
-    tracking: "Repetitions",
-    image: "placeholder.svg"
-  },
-  // Add more exercises here
-]);
-
+const exercises = ref([]);
 const selectedExercise = ref(null);
+
+const message = ref("Exercises");
+
+
+
+const loadExercises = async (categoryId) => {
+  ExerciseServices.getAllForCategory(categoryId)
+    .then((res) => {
+      exercises.value = res.data;
+      selectedExercise.value = null;
+    })
+    .catch((e) => {
+      message.value = e.response?.data?.message || "Failed to load exercises.";
+    });
+};
+
+watch(
+  () => route.params.categoryId,
+  (newCategoryId) => {
+    if (newCategoryId) {
+      selectedCategoryId.value = Number(newCategoryId);
+      loadExercises(selectedCategoryId.value);
+    }
+  },
+  { immediate: true }
+);
+
 const search = ref("");
 const showToast = ref(true);
 
@@ -54,6 +47,19 @@ const filteredExercises = computed(() => {
   );
 });
 
+
+const goToAddExercise = () => {
+   if (selectedCategoryId.value) 
+   {
+    router.push({ name: "addExercise"});
+  }
+  else 
+  {
+    message.value = "Please select a category first.";
+  }
+};
+
+
 const selectExercise = (exercise) => {
   selectedExercise.value = exercise;
 };
@@ -63,52 +69,34 @@ const selectExercise = (exercise) => {
   <v-container fluid>
     <v-row>
       <v-col cols="3" class="pa-4" style="border-right: 1px solid #ccc;">
-        <v-text-field
-          v-model="search"
-          label="Search Exercises"
-          prepend-icon="mdi-magnify"
-          dense
-          hide-details
-        />
+        <v-text-field v-model="search" label="Search Exercises" prepend-icon="mdi-magnify" dense hide-details />
+
+        <v-btn class="mt-2" color="success" block @click="goToAddExercise">
+          + Add Exercise
+        </v-btn>
+
+
         <v-list>
-          <v-list-item
-            v-for="exercise in filteredExercises" 
-            :key="exercise.id" 
-            @click="selectExercise(exercise)"
-            :class="{ 'bg-grey-lighten-3': selectedExercise?.id === exercise.id }"
-          >
+          <v-list-item v-for="exercise in filteredExercises" :key="exercise.id" @click="selectExercise(exercise)"
+            :class="{ 'bg-grey-lighten-3': selectedExercise?.id === exercise.id }">
             <v-list-item-content>
               <v-list-item-title>{{ exercise.name }}</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <v-alert
-          v-if="showToast"
-          type="info" 
-          class="mt-4" 
-          border="left" 
-          colored-border 
-          dense 
-          @click="showToast = false"
-        >
-          Your dashboard comes with a default set of exercises. Explore more or create your own!
-        </v-alert>
       </v-col>
 
-    
+
       <v-col cols="9" class="pa-4">
         <v-card v-if="selectedExercise">
           <v-card-title>{{ selectedExercise.name }}</v-card-title>
           <v-card-text>
-            <p><strong>Muscle Groups:</strong> {{ selectedExercise.muscleGroups.join(", ") }}</p>
-            <p><strong>Target Areas:</strong> {{ selectedExercise.targetAreas.join(", ") }}</p>
-            <p><strong>Tracking:</strong> {{ selectedExercise.tracking }}</p>
-            <div class="mt-4">
-              <v-img :src="selectedExercise.image" alt="Exercise Illustration" max-width="300" />
-            </div>
-            <v-btn class="mt-4" color="primary">Add Instructions</v-btn>
+            <p><strong>Description:</strong> {{ selectedExercise.description }}</p>
+            <p><strong>Equipment:</strong> {{ selectedExercise.equipment }}</p>
+            <p><strong>Duration:</strong> {{ selectedExercise.duration }} seconds</p>
           </v-card-text>
         </v-card>
+
         <div v-else>
           <v-alert type="info" border="left" colored-border>
             Select an exercise to view details.
