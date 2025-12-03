@@ -2,6 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ExerciseServices from "../services/exerciseServices";
+import ExerciseSetSelector from "../components/ExerciseSetSelector.vue";
 
 
 const route = useRoute();
@@ -10,12 +11,20 @@ const selectedCategoryId = ref(null);
 
 const exercises = ref([]);
 const selectedExercise = ref(null);
+const selectedSet = ref(null);
 
 const message = ref("Exercises");
 
 
 
 const loadExercises = async (categoryId) => {
+  // If a set is selected, prefer that list (sets can be independent of category)
+  if (selectedSet.value) {
+    exercises.value = selectedSet.value.exercises || [];
+    selectedExercise.value = null;
+    return;
+  }
+
   ExerciseServices.getAllForCategory(categoryId)
     .then((res) => {
       exercises.value = res.data;
@@ -63,18 +72,33 @@ const goToAddExercise = () => {
 const selectExercise = (exercise) => {
   selectedExercise.value = exercise;
 };
+
+const applySet = (set) => {
+  selectedSet.value = set;
+  exercises.value = set.exercises || [];
+  selectedExercise.value = null;
+  message.value = `Loaded set "${set.name}"`;
+};
+
+const clearSet = () => {
+  selectedSet.value = null;
+  // reload for currently selected category
+  loadExercises(selectedCategoryId.value);
+  message.value = "Cleared set";
+};
 </script>
 
 <template>
   <v-container fluid>
     <v-row>
       <v-col cols="3" class="pa-4" style="border-right: 1px solid #ccc;">
+        <ExerciseSetSelector @select-set="applySet" @clear-set="clearSet" />
+
         <v-text-field v-model="search" label="Search Exercises" prepend-icon="mdi-magnify" dense hide-details />
 
         <v-btn class="mt-2" color="success" block @click="goToAddExercise">
           + Add Exercise
         </v-btn>
-
 
         <v-list>
           <v-list-item v-for="exercise in filteredExercises" :key="exercise.id" @click="selectExercise(exercise)"
