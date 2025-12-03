@@ -17,7 +17,7 @@ jobs:
       VITE_APP_SITE_URL: ${{secrets.VITE_APP_SITE_URL}}
       VITE_APP_REFRESH_TOKEN: ${{secrets.VITE_APP_REFRESH_TOKEN}}
       VITE_APP_BASE_API_URL: ${{secrets.VITE_APP_BASE_API_URL}}
-      ITE_APP_CLIENT_SECRET: ${{secrets.VITE_APP_CLIENT_SECRET}}
+      VITE_APP_CLIENT_SECRET: ${{secrets.VITE_APP_CLIENT_SECRET}}
     steps:
       - uses: actions/checkout@v2
         with:
