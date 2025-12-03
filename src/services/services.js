@@ -3,8 +3,14 @@ import Utils from "../config/utils.js";
 import AuthServices from "./authServices.js";
 import Router from "../router.js";
 
+// Prefer an explicit Vite env var `VITE_API_BASE_URL` (or the older
+// `VITE_APP_BASE_API_URL`) for production configuration. If not set,
+// fall back to the previous behavior (dev -> localhost proxy, prod -> /tracker-t8/).
+const envBase = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_APP_BASE_API_URL;
 var baseurl = "";
-if (import.meta.env.DEV) {
+if (envBase) {
+  baseurl = envBase.endsWith("/") ? envBase : envBase + "/";
+} else if (import.meta.env.DEV) {
   baseurl = "http://localhost:3128/tracker-t8/";
 } else {
   baseurl = "/tracker-t8/";
