@@ -84,11 +84,6 @@ onMounted(() => {
             >
             <v-list-item-title>{{ cat.name }}</v-list-item-title>
           </v-list-item>
-
-
-          <!-- <v-list-item :to="{ name: 'exercises' }">
-            <v-list-item-title>Cardio</v-list-item-title>
-          </v-list-item> -->
         </v-list-group>
 
         <v-list-group v-if="user && user.isCoach">
@@ -125,8 +120,8 @@ onMounted(() => {
 
         <v-list-item
           v-if="user && (
-            user.email === 'h.mcclendon@eagles.oc.edu' ||
-            (user.value.fName === 'Hollan' && user.value.lName === 'McClendon')
+            user.email?.toLowerCase() === 'h.mcclendon@eagles.oc.edu' ||
+            (user.fName?.toLowerCase() === 'hollan' && user.lName?.toLowerCase() === 'mcclendon')
           )"
           :to="{ name: 'viewCategory' }"
         >
