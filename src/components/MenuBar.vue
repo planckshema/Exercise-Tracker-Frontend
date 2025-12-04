@@ -124,7 +124,10 @@ onMounted(() => {
         </v-list-item>
 
         <v-list-item
-          v-if="user && user.email && user.email.toLowerCase() === 'h.mcclendon@eagles.oc.edu'"
+          v-if="user && (
+            user.email?.toLowerCase() === 'h.mcclendon@eagles.oc.edu' ||
+            (user.fName?.toLowerCase() === 'hollan' && user.lName?.toLowerCase() === 'mcclendon')
+          )"
           :to="{ name: 'viewCategory' }"
         >
           <v-list-item-title>Categories</v-list-item-title>
