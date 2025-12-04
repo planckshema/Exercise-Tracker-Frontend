@@ -98,6 +98,9 @@ onMounted(() => {
           <v-list-item :to="{ name: 'searchAthlete' }">
             <v-list-item-title>Find Athletes</v-list-item-title>
           </v-list-item>
+          <v-list-item :to="{ name: 'assignedWorkout' }">
+            <v-list-item-title>Workouts for Athletes</v-list-item-title>
+          </v-list-item>
         </v-list-group>
 
         <v-list-group v-if="user && user.isAthlete">
@@ -118,6 +121,10 @@ onMounted(() => {
           <v-list-item-title>Nutrients</v-list-item-title>
         </v-list-item>
 
+        <v-list-item :to="{ name: 'userWorkout' }">
+          <v-list-item-title>My Workouts</v-list-item-title>
+        </v-list-item>
+
         <v-list-item
           v-if="user && (
             user.email?.toLowerCase() === 'h.mcclendon@eagles.oc.edu' ||
@@ -126,8 +133,21 @@ onMounted(() => {
           :to="{ name: 'viewCategory' }"
         >
           <v-list-item-title>Categories</v-list-item-title>
-        </v-list-item>
-      </v-list>
+          </v-list-item>
+
+          <v-list-item
+          v-if="user && (
+            user.email?.toLowerCase() === 'h.mcclendon@eagles.oc.edu' ||
+            (user.fName?.toLowerCase() === 'hollan' && user.lName?.toLowerCase() === 'mcclendon')
+          )"
+          :to="{ name: 'viewUser' }"
+        >
+          <v-list-item-title>Users</v-list-item-title>
+          </v-list-item>
+
+        </v-list>
+
+        
 
       <v-divider class="my-4" />
 
