@@ -12,6 +12,11 @@ import SearchAthlete from "./views/SearchAthlete.vue";
 import Athlete from "./views/Athlete.vue";
 import AddExercise from "./views/AddExercise.vue";
 import ViewCategory from "./views/ViewCategory.vue";
+import ViewUser from "./views/ViewUser.vue";
+import AthleteWorkoutInfo from "./views/AthleteWorkoutInfo.vue";
+import MyWorkoutInfo from "./views/MyWorkoutInfo.vue";
+import AssignedWorkouts from "./views/AssignedWorkouts.vue";
+import UserWorkouts from "./views/UserWorkouts.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,6 +82,36 @@ const router = createRouter({
       path: "/viewCategory",
       name: "viewCategory",
       component: ViewCategory,
+      props: true,
+    },
+    {
+      path: "/myWorkout",
+      name: "myWorkout",
+      component: MyWorkoutInfo,
+      props: true,
+    },
+    {
+      path: "/athleteWorkout",
+      name: "athleteWorkout",
+      component: AthleteWorkoutInfo,
+      props: true,
+    },
+    {
+      path: "/assignedWorkout",
+      name: "assignedWorkout",
+      component: AssignedWorkouts,
+      props: true,
+    },
+    {
+      path: "/userWorkout",
+      name: "userWorkout",
+      component: UserWorkouts,
+      props: true,
+    },
+    {
+      path: "/viewUser",
+      name: "viewUser",
+      component: ViewUser,
       props: true,
     },
   ]

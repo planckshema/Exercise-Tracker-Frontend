@@ -54,6 +54,15 @@ async function loadTodaysWorkouts() {
   }
 }
 
+function getAthleteName(id) {
+  const athlete = athletes.value.find(a => a.id === id);
+  return athlete ? `${athlete.firstName} ${athlete.lastName}` : `Athlete ${id}`;
+}
+
+function displayCompletion(val) {
+  return val === 1 ? "Completed" : "Not Completed";
+}
+
 onMounted(async () => {
   try {
     if (!user?.email) {
@@ -193,11 +202,13 @@ async function cancelExerciseModal() {
               <v-list-item-content>
                 <v-list-item-title>{{ plan.title }}</v-list-item-title>
                 <v-list-item-subtitle>
-                  Athlete ID: {{ plan.assignedAthleteId }} |
-                  Time: {{ toDisplayTime(plan.scheduledTime) }}
+                  Athlete: {{ getAthleteName(plan.assignedAthleteId) }} |
+                  Time: {{ toDisplayTime(plan.scheduledTime) }} |
+                  Status: {{ displayCompletion(plan.isCompleted) }}
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+
           </v-list>
         </div>
       </v-card-text>
