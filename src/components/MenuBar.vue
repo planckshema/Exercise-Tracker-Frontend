@@ -22,7 +22,6 @@ const resetMenu = () => {
     initials.value = user.value.fName[0] + user.value.lName[0];
     name.value = user.value.fName + " " + user.value.lName;
   }
-    console.log("Menu loaded user:", user.value);
 };
 
 const logout = () => {
@@ -142,50 +141,5 @@ onMounted(() => {
         <v-btn block color="primary" @click="logout">Logout</v-btn>
       </div>
     </v-navigation-drawer>
-    <!-- <v-app-bar app>
-      <router-link :to="{ name: 'tutorials' }">
-        <v-img
-          class="mx-2"
-          :src="logoURL"
-          height="50"
-          width="50"
-          contain
-        ></v-img>
-      </router-link>
-      <v-toolbar-title class="title">
-        {{}}
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <div v-if="user">
-        <v-btn class="mx-2" :to="{ name: 'tutorials' }"> List </v-btn>
-        <v-btn class="mx-2" :to="{ name: 'add' }"> Add Tutorial </v-btn>
-      </div>
-      <v-menu bottom min-width="200px" rounded offset-y v-if="user">
-        <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon x-large>
-            <v-avatar v-if="user" color="secondary">
-              <span class="accent--text font-weight-bold">{{ initials }}</span>
-            </v-avatar>
-          </v-btn>
-        </template>
-        <v-card>
-          <v-card-text>
-            <div class="mx-auto text-center">
-              <v-avatar color="secondary" class="mt-2 mb-2">
-                <span class="accent--text font-weight-bold">{{
-                  initials
-                }}</span>
-              </v-avatar>
-              <h3>{{ name }}</h3>
-              <p class="text-caption mt-1">
-                {{ user.email }}
-              </p>
-              <v-divider class="my-3"></v-divider>
-              <v-btn depressed rounded text @click="logout"> Logout </v-btn>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-menu>
-    </v-app-bar> -->
   </div>
 </template>
