@@ -42,17 +42,23 @@ const retrieveCoaches = () => {
 const retrieveRequests = () => {
   const coach = coaches.value.find(c => c.email === user.email);
   if (!coach) return;
-  CoachAthleteServices.getAthletesForCoach(coach.id)
+  CoachAthleteServices.getAllAthletesForCoach(coach.id)
     .then((res) => {
-      requests.value = res.data;
+      requests.value = (res.data || []).map(r => ({
+        coachId: Number(r.coachId),
+        athleteId: Number(r.athleteId),
+        status: r.status,
+        initiator: r.initiator
+      }));
     })
     .catch((e) => {
       message.value = e.response?.data?.message || "Failed to load requests.";
     });
 };
 
+
 const getRequestStatus = (athleteId) => {
-  const req = requests.value.find(r => r.athleteId === athleteId);
+  const req = requests.value.find(r => Number(r.athleteId) === Number(athleteId));
   return req ? req.status : "open";
 };
 
@@ -102,19 +108,13 @@ const requestToCoach = (athlete) => {
 
 
 const getActionsForRequest = (athleteId) => {
-  const req = requests.value.find(r => r.athleteId === athleteId);
+  const req = requests.value.find(r => Number(r.athleteId) === Number(athleteId));
   if (!req) return "none";
 
-  const currentCoach = coaches.value.find(c => c.email === user.email);
-  const currentAthlete = athletes.value.find(a => a.email === user.email);
-
   if (req.status === "pending") {
-    if (req.initiator === "coach") return "cancel";
-    if (req.initiator === "athlete") return "acceptReject";
+    return req.initiator === "coach" ? "cancel" : "acceptReject";
   }
-  if (req.status === "accepted") {
-    return "remove";
-  }
+  if (req.status === "accepted") return "remove";
   return "none";
 };
 
@@ -159,6 +159,9 @@ const cancelRequest = (athlete) => {
       message.value = e.response?.data?.message || "Error canceling request.";
     });
 };
+
+
+
 
 retrieveAthletes();
 retrieveCoaches();

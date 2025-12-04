@@ -22,6 +22,11 @@ export default {
     return apiClient.get(`/coachAthletes/athlete/${athleteId}`);
   },
 
+
+   getAllAthletesForCoach(coachId) {
+    return apiClient.get(`/coachAthletes/coach/${coachId}/all`);
+  },
+
   // Get pending requests for a coach (athletes requesting to be coached)
   getPendingCoachRequests(coachId) {
     return apiClient.get(`/coachAthletes/coach/${coachId}/pending`);
@@ -41,5 +46,4 @@ export default {
   rejectRequest(coachId, athleteId) {
     return apiClient.delete(`/coachAthletes/${coachId}/${athleteId}/reject`);
   },
-
 };
