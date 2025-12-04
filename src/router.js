@@ -11,12 +11,6 @@ import NewAthleteUser from "./views/NewAthleteUser.vue";
 import SearchAthlete from "./views/SearchAthlete.vue";
 import Athlete from "./views/Athlete.vue";
 import AddExercise from "./views/AddExercise.vue";
-import TutorialsList from "./views/TutorialsList.vue";
-import EditTutorial from "./views/EditTutorial.vue";
-import AddTutorial from "./views/AddTutorial.vue";
-import ViewTutorial from "./views/ViewTutorial.vue";
-import AddLesson from "./views/AddLesson.vue";
-import EditLesson from "./views/EditLesson.vue";
 import ViewCategory from "./views/ViewCategory.vue";
 
 const router = createRouter({
@@ -79,46 +73,6 @@ const router = createRouter({
       component: AddExercise,
       props: true,
     },
-    {
-      path: "/tutorials",
-      name: "tutorials",
-      component: TutorialsList,
-    },
-    {
-      path: "/edit/:id",
-      name: "edit",
-      component: EditTutorial,
-      props: true,
-    },
-    {
-      path: "/add",
-      name: "add",
-      component: AddTutorial,
-    },
-    {
-      path: "/view/:id",
-      name: "view",
-      component: ViewTutorial,
-      props: true,
-    },
-    {
-      path: "/addLesson/:tutorialId",
-      name: "addLesson",
-      component: AddLesson,
-      props: true,
-    },
-    {
-      path: "/editLesson/:tutorialId/:lessonId",
-      name: "editLesson",
-      component: EditLesson,
-      props: true,
-    },
-    {
-      path: "/viewCategory",
-      name: "viewCategory",
-      component: ViewCategory,
-    },
-  ],
 });
 
 export default router;
