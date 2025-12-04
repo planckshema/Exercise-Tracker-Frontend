@@ -22,6 +22,7 @@ const resetMenu = () => {
     initials.value = user.value.fName[0] + user.value.lName[0];
     name.value = user.value.fName + " " + user.value.lName;
   }
+    console.log("Menu loaded user:", user.value);
 };
 
 const logout = () => {
