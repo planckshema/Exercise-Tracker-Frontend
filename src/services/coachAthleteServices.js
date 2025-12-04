@@ -22,4 +22,7 @@ export default {
     return apiClient.get(`/coachAthletes/athlete/${athleteId}`);
   },
 
+   getAllAthletesForCoach(coachId) {
+    return apiClient.get(`/coachAthletes/coach/${coachId}/all`);
+  },
 };
