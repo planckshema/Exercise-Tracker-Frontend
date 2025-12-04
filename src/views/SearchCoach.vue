@@ -121,7 +121,7 @@ const getActionsForRequest = (coachId) => {
 
 const acceptRequest = (coach) => {
   const athlete = athletes.value.find(a => a.email === user.email);
-  CoachAthleteServices.update(coach.id, athlete.id, { status: "accepted" })
+  CoachAthleteServices.acceptRequest(coach.id, athlete.id)
     .then(() => {
       message.value = `Request from ${coach.firstName} accepted.`;
       retrieveRequests();
@@ -133,7 +133,7 @@ const acceptRequest = (coach) => {
 
 const rejectRequest = (coach) => {
   const athlete = athletes.value.find(a => a.email === user.email);
-  CoachAthleteServices.update(coach.id, athlete.id, { status: "rejected" })
+  CoachAthleteServices.rejectRequest(coach.id, athlete.id)
     .then(() => {
       message.value = `Request from ${coach.firstName} rejected.`;
       retrieveRequests();

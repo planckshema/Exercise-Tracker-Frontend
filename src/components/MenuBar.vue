@@ -18,7 +18,7 @@ const categories = ref([]);
 const resetMenu = () => {
   user.value = null;
   user.value = Utils.getStore("user");
-  if (user.value) {
+  if (user.value && user.value.fName && user.value.lName) {
     initials.value = user.value.fName[0] + user.value.lName[0];
     name.value = user.value.fName + " " + user.value.lName;
   }
