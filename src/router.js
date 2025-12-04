@@ -73,6 +73,13 @@ const router = createRouter({
       component: AddExercise,
       props: true,
     },
+    {
+      path: "/viewCategory",
+      name: "viewCategory",
+      component: ViewCategory,
+      props: true,
+    },
+  ]
 });
 
 export default router;
