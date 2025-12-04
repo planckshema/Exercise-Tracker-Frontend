@@ -1,240 +1,275 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import AthleteServices from "../services/athleteServices";
-import CoachAthleteServices from "../services/coachAthleteServices";
+import ExerciseServices from "../services/exerciseServices.js";
+import CoachServices from "../services/coachServices.js";
+import CoachAthleteServices from "../services/coachAthleteServices.js";
+import WorkoutPlanServices from "../services/workoutPlanServices.js";
+import WorkoutPlanExerciseServices from "../services/workoutPlanExerciseServices.js";
 import Utils from "../config/utils.js";
 
 const user = Utils.getStore("user");
-const pageTitle = ref("Coach Dashboard");
-const athletesToday = ref([]);
+const coach = ref(null);
+const athletes = ref([]);
+const exercises = ref([]);
+const selectedAthlete = ref(null);
+const selectedExercises = ref([]);
+const title = ref("");
+const scheduledTime = ref(""); 
+const notes = ref("");
 const message = ref("");
 
-// Format: YYYY-MM-DD for comparison
-const todayISO = new Date().toISOString().split("T")[0];
+const showPlanModal = ref(false);
+const showExerciseModal = ref(false);
+const todaysWorkouts = ref([]);
+const exerciseInputs = ref([]);
+const createdPlanId = ref(null);
 
-// Format: "Friday, November 8" for display
-const todayDisplay = new Date().toLocaleDateString(undefined, {
-  weekday: "long",
-  month: "long",
-  day: "numeric"
-});
+function setMessage(err, fallback) {
+  message.value = err?.response?.data?.message || err?.message || fallback;
+}
 
-// Fetch and filter athlete workouts
-const retrieveAthletes = async () => {
+function toDisplayTime(hhmmss) {
+  if (!hhmmss) return "";
+  const [hour, minute, second] = hhmmss.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hour, minute, second);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+
+async function loadTodaysWorkouts() {
   try {
-    const response = await AthleteServices.getAllAthletes(user.userId);
-    const allAthletes = response.data;
-
-    athletesToday.value = allAthletes
-      .flatMap((athlete) =>
-        athlete.workouts
-          ?.filter((w) => w.date === todayISO)
-          .map((w) => ({
-            name: athlete.name,
-            time: w.time,
-            duration: w.duration,
-            type: w.type
-          }))
-      )
-      .sort((a, b) => a.time.localeCompare(b.time));
-  } catch (e) {
-    message.value = e.response?.data?.message || "Failed to load athlete data.";
+    const plansRes = await WorkoutPlanServices.getByCoach(coach.value.id);
+    todaysWorkouts.value = (plansRes?.data || []).filter(plan => {
+      const ts = plan?.scheduledTime;
+      if (!ts) return false;
+      const parts = ts.split(":").map(Number);
+      if (parts.length !== 3) return false;
+      const [hour, minute, second] = parts;
+      const totalSeconds = hour * 3600 + minute * 60 + second;
+      return totalSeconds < 43200;
+    });
+  } catch (err) {
+    setMessage(err, "Failed to load workouts.");
   }
-};
+}
 
+onMounted(async () => {
+  try {
+    if (!user?.email) {
+      message.value = "No user in store. Please log in again.";
+      return;
+    }
 
-const getColor = (index) => {
-  const colors = ["blue", "green", "grey"];
-  return colors[index % colors.length];
-};
+    const coachRes = await CoachServices.getAll();
+    coach.value = (coachRes?.data || []).find(c => c.email === user.email);
+    if (!coach.value) {
+      message.value = "Coach record not found for this user.";
+      return;
+    }
 
-const getInitials = (name) => {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-};
+    const athleteRes = await CoachAthleteServices.getAthletesForCoach(coach.value.id);
+    athletes.value = (athleteRes?.data || []).map(rel => rel.athlete || rel);
 
-onMounted(() => {
-  retrieveAthletes();
+    const exerciseRes = await ExerciseServices.getAll();
+    exercises.value = exerciseRes?.data || [];
+
+    await loadTodaysWorkouts();
+  } catch (err) {
+    setMessage(err, "Failed to load data.");
+  }
 });
+
+function getExerciseName(id) {
+  const match = exercises.value.find(e => e.id === id);
+  return match ? match.name : `Exercise ${id}`;
+}
+
+async function assignWorkout() {
+  if (!selectedAthlete.value || selectedExercises.value.length === 0) {
+    message.value = "Please select an athlete and at least one exercise.";
+    return;
+  }
+  if (!coach.value) {
+    message.value = "Coach not found for this user.";
+    return;
+  }
+  if (!scheduledTime.value) {
+    message.value = "Scheduled time is required.";
+    return;
+  }
+
+  try {
+    const hhmmss = toDisplayTime(scheduledTime.value);
+    const planRes = await WorkoutPlanServices.create({
+      title: title.value.trim(),
+      scheduledTime: hhmmss,
+      createdByUserId: user.userId,
+      assignedAthleteId: selectedAthlete.value,
+      assignedCoachId: coach.value.id,
+      notes: (notes.value || "").trim()
+    });
+
+    createdPlanId.value = planRes.data.id;
+
+    exerciseInputs.value = selectedExercises.value.map(exId => ({
+      exerciseId: exId,
+      sets: "",
+      reps: "",
+      duration: "",
+      durationUnit: "mins",
+      isCompleted: 0
+    }));
+
+    showPlanModal.value = false;
+    showExerciseModal.value = true;
+
+    selectedAthlete.value = null;
+    selectedExercises.value = [];
+    title.value = "";
+    scheduledTime.value = "";
+    notes.value = "";
+  } catch (err) {
+    setMessage(err, "Error assigning workout.");
+  }
+}
+
+async function submitExercises() {
+  try {
+    for (const ex of exerciseInputs.value) {
+      await WorkoutPlanExerciseServices.create({
+        workoutPlanId: createdPlanId.value,
+        exerciseId: ex.exerciseId,
+        sets: ex.sets,
+        reps: ex.reps,
+        duration: ex.duration,
+        durationUnit: ex.durationUnit,
+        isCompleted: 0
+      });
+    }
+    message.value = "Exercises saved!";
+    showExerciseModal.value = false;
+    createdPlanId.value = null;
+    exerciseInputs.value = [];
+
+    await loadTodaysWorkouts();
+  } catch (err) {
+    setMessage(err, "Error saving exercises.");
+  }
+}
+
+async function cancelExerciseModal() {
+  try {
+    if (createdPlanId.value) {
+      await WorkoutPlanServices.delete(createdPlanId.value);
+    }
+    showExerciseModal.value = false;
+    createdPlanId.value = null;
+    exerciseInputs.value = [];
+    message.value = "Workout plan discarded.";
+  } catch (err) {
+    setMessage(err, "Failed to discard workout plan.");
+  }
+}
 </script>
+
 
 <template>
   <v-container>
-    <v-row align="center" justify="space-between" class="mb-4">
-      <v-col cols="auto">
-        <span class="text-h5 font-weight-bold">
-          Hello Coach {{ user.fName }} {{ user.lName }}!
-        </span>
-      </v-col>
-      <v-col cols="auto">
-        <v-chip color="primary" text-color="white" class="ma-2" label>
-          {{ todayDisplay }}
-        </v-chip>
-      </v-col>
-    </v-row>
+    <v-card class="pa-6">
+      <v-card-text>
+        <b>{{ message }}</b>
+        <v-btn color="primary" type="button" @click="showPlanModal = true">Assign Workout Plan</v-btn>
+      </v-card-text>
 
-    <v-card elevation="3" class="pa-4">
-      <v-card-title class="text-h6 font-weight-bold">
-        Today's Athlete Workouts
-      </v-card-title>
-      <v-divider class="mb-4"></v-divider>
+      <v-card-text>
+        <div v-if="todaysWorkouts.length === 0">
+          No scheduled workouts today.
+        </div>
+        <div v-else>
+          <v-list>
+            <v-subheader>Today's Workouts</v-subheader>
+            <v-list-item v-for="plan in todaysWorkouts" :key="plan.id">
+              <v-list-item-content>
+                <v-list-item-title>{{ plan.title }}</v-list-item-title>
+                <v-list-item-subtitle>
+                  Athlete ID: {{ plan.assignedAthleteId }} |
+                  Time: {{ toDisplayTime(plan.scheduledTime) }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </div>
+      </v-card-text>
 
-      <v-row>
-        <v-col
-          v-for="(athlete, index) in athletesToday"
-          :key="index"
-          cols="12"
-          md="6"
-        >
-          <v-card class="pa-3" elevation="1" outlined>
-            <v-row align="center">
-              <v-col cols="auto">
-                <v-avatar
-                  size="40"
-                  :color="getColor(index)"
-                  class="text-white font-weight-bold"
-                >
-                  {{ getInitials(athlete.name) }}
-                </v-avatar>
-              </v-col>
-              <v-col>
-                <div class="font-weight-medium">
-                  {{ athlete.name }}
-                </div>
-                <div class="text-caption text-grey-darken-1">
-                  {{ athlete.type }} at {{ athlete.time }} for
-                  {{ athlete.duration }} minutes
-                </div>
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-alert v-if="!athletesToday.length" type="info" class="mt-4">
-        No workouts scheduled for today.
-      </v-alert>
+      <v-card-text>
+        <v-list>
+          <v-subheader>My Athletes</v-subheader>
+          <v-list-item v-for="athlete in athletes" :key="athlete.id">
+            <v-list-item-content>
+              <v-list-item-title>{{ athlete.firstName }} {{ athlete.lastName }}</v-list-item-title>
+              <v-list-item-subtitle>{{ athlete.email }} | {{ athlete.sport }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
     </v-card>
+
+    <v-dialog v-model="showPlanModal" max-width="600px">
+      <v-card>
+        <v-card-title>Assign Workout Plan</v-card-title>
+        <v-card-text>
+          <v-select
+            v-model="selectedAthlete"
+            :items="athletes"
+            item-title="firstName"
+            item-value="id"
+            label="Select Athlete"
+          />
+          <v-select
+            v-model="selectedExercises"
+            :items="exercises"
+            item-title="name"
+            item-value="id"
+            label="Select Exercises"
+            multiple
+          />
+          <v-text-field v-model="title" label="Workout Title" />
+          <v-text-field v-model="scheduledTime" label="Scheduled Time" type="time" />
+          <v-text-field v-model="notes" label="Notes" maxlength="255" />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" type="button" @click="assignWorkout">Save</v-btn>
+          <v-btn text type="button" @click="showPlanModal = false">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="showExerciseModal" max-width="650px">
+      <v-card>
+        <v-card-title>Enter Exercise Details</v-card-title>
+        <v-card-text>
+          <v-list>
+            <v-list-item v-for="ex in exerciseInputs" :key="ex.exerciseId">
+              <v-list-item-content>
+                <v-list-item-title>{{ getExerciseName(ex.exerciseId) }}</v-list-item-title>
+                <v-text-field v-model="ex.sets" label="Sets" type="number" />
+                <v-text-field v-model="ex.reps" label="Reps" type="number" />
+                <v-text-field v-model="ex.duration" label="Duration" type="number" />
+                <v-select
+                  v-model="ex.durationUnit"
+                  :items="['mins', 'secs', 'hours']"
+                  label="Duration Unit"
+                />
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" type="button" @click="submitExercises">Submit Exercises</v-btn>
+          <v-btn text type="button" @click="cancelExerciseModal">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
-
-
-
-
-<!-- <script setup>
-import { ref } from "vue";
-
-const pageTitle = ref("Coach Dashboard");
-
-// Hardcoded sample data for today's workouts
-const athletesToday = ref([
-  {
-    name: "Sarah (Sample Client)",
-    time: "18:15",
-    duration: 15,
-    type: "Call"
-  },
-  {
-    name: "Sarah (Sample Client)",
-    time: "18:30",
-    duration: 15,
-    type: "Call"
-  },
-  {
-    name: "Jordan Lee",
-    time: "19:00",
-    duration: 30,
-    type: "Workout"
-  },
-  {
-    name: "Taylor Nguyen",
-    time: "20:00",
-    duration: 45,
-    type: "Nutrition Check-In"
-  }
-]);
-
-const today = new Date().toLocaleDateString(undefined, {
-  weekday: "long",
-  month: "long",
-  day: "numeric"
-});
-
-// Generate a color from index for visual variety
-const getColor = (index) => {
-  const colors = ["blue", "green","grey"];
-  return colors[index % colors.length];
-};
-
-// Extract initials from name
-const getInitials = (name) => {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-};
-</script>
-
-<template>
-  <v-container>
-    <v-row align="center" justify="space-between" class="mb-4">
-      <v-col cols="auto">
-        <span class="text-h5 font-weight-bold">{{ pageTitle }}</span>
-      </v-col>
-      <v-col cols="auto">
-        <v-chip color="primary" text-color="white" class="ma-2" label>
-          {{ today }}
-        </v-chip>
-      </v-col>
-    </v-row>
-
-    <v-card elevation="3" class="pa-4">
-      <v-card-title class="text-h6 font-weight-bold">
-        Today's Athlete Workouts
-      </v-card-title>
-      <v-divider class="mb-4"></v-divider>
-
-      <v-row>
-        <v-col
-          v-for="(athlete, index) in athletesToday"
-          :key="index"
-          cols="12"
-          md="6"
-        >
-          <v-card class="pa-3" elevation="1" outlined>
-            <v-row align="center">
-              <v-col cols="auto">
-                <v-avatar
-                  size="40"
-                  :color="getColor(index)"
-                  class="text-white font-weight-bold"
-                >
-                  {{ getInitials(athlete.name) }}
-                </v-avatar>
-              </v-col>
-              <v-col>
-                <div class="font-weight-medium">
-                  {{ athlete.name }}
-                </div>
-                <div class="text-caption text-grey-darken-1">
-                  {{ athlete.type }} at {{ athlete.time }} for
-                  {{ athlete.duration }} minutes
-                </div>
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-alert v-if="!athletesToday.length" type="info" class="mt-4">
-        No workouts scheduled for today.
-      </v-alert>
-    </v-card>
-  </v-container>
-</template> -->
