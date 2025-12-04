@@ -35,7 +35,13 @@ const apiClient = axios.create({
     return JSON.stringify(data);
   },
   transformResponse: function (data) {
-    data = JSON.parse(data);
+    if (!data) return data;
+    try {
+      data = JSON.parse(data);
+    } catch (err) {
+      // If the response isn't JSON, return raw data to avoid crash
+      return data;
+    }
     // if (!data.success && data.code == "expired-session") {
     //   localStorage.deleteItem("user");
     // }
