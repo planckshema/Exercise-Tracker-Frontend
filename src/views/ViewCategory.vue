@@ -5,14 +5,12 @@ import { ref, onMounted } from "vue";
 const categories = ref([]);
 const message = ref("Add or Delete Categories");
 
-// Modal state
 const showAddModal = ref(false);
 const newCategory = ref({
   name: "",
   description: ""
 });
 
-// Retrieve all categories
 const retrieveCategories = () => {
   ExerciseCategoryServices.getAll()
     .then((response) => {
@@ -23,13 +21,11 @@ const retrieveCategories = () => {
     });
 };
 
-// Open modal
 const openAddModal = () => {
   newCategory.value = { name: "", description: "" };
   showAddModal.value = true;
 };
 
-// Save new category
 const saveCategory = () => {
   ExerciseCategoryServices.create(newCategory.value)
     .then(() => {
@@ -41,7 +37,6 @@ const saveCategory = () => {
     });
 };
 
-// Delete a category
 const deleteCategory = (category) => {
   ExerciseCategoryServices.delete(category.id)
     .then(() => {
@@ -87,7 +82,6 @@ onMounted(() => {
               <td>{{ item.name }}</td>
               <td>{{ item.description }}</td>
               <td>
-                <!-- Removed edit button -->
                 <v-icon small class="mx-4" @click="deleteCategory(item)">
                   mdi-trash-can
                 </v-icon>
@@ -98,7 +92,6 @@ onMounted(() => {
       </v-card>
     </v-container>
 
-    <!-- Add Category Modal -->
     <v-dialog v-model="showAddModal" max-width="500px">
       <v-card>
         <v-card-title>Add New Category</v-card-title>

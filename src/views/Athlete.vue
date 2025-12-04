@@ -43,16 +43,19 @@ async function loadTodaysWorkouts() {
     todaysWorkouts.value = (plansRes?.data || []).filter(plan => {
       const ts = plan?.scheduledTime;
       if (!ts) return false;
+      if (!plan.assignedCoachId || !plan.assignedAthleteId) return false;
+
       const parts = ts.split(":").map(Number);
       if (parts.length !== 3) return false;
       const [hour, minute, second] = parts;
       const totalSeconds = hour * 3600 + minute * 60 + second;
-      return totalSeconds < 43200;
+      return totalSeconds < 86400;
     });
   } catch (err) {
     setMessage(err, "Failed to load workouts.");
   }
 }
+
 
 function getAthleteName(id) {
   const athlete = athletes.value.find(a => a.id === id);

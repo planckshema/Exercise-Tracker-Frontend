@@ -33,7 +33,7 @@ function getAthleteName(id) {
 }
 
 function displayCompletion(val) {
-  return val === 1 ? "Completed" : "Not Completed";
+  return Number(val) === 1 ? "Completed" : "Not Completed";
 }
 
 const openEditModal = async (plan) => {
@@ -43,7 +43,7 @@ const openEditModal = async (plan) => {
     editExercises.value = (res.data || []).map(ex => {
       const match = allExercises.value.find(e => e.id === ex.exerciseId);
       return {
-        id: ex.id, // ✅ confirmed from your logs
+        id: ex.id,
         workoutPlanId: ex.workoutPlanId,
         exerciseId: ex.exerciseId,
         exerciseName: match?.name || `Exercise ${ex.exerciseId}`,
@@ -86,9 +86,7 @@ const saveWorkout = async () => {
 
       try {
         await WorkoutPlanExerciseServices.update(ex.id, payload);
-      } 
-      catch (err) {
-        // Log but don’t break the loop
+      } catch (err) {
         console.error(`Failed to update exercise ${ex.id}`, err);
       }
     }
@@ -128,8 +126,26 @@ const retrieveWorkouts = async () => {
     athletes.value = (athleteRes?.data || []).map(rel => rel.athlete || rel);
 
     const plansRes = await WorkoutPlanServices.getByCoach(coach.value.id);
-    workouts.value = (plansRes?.data || [])
+    let plans = (plansRes?.data || [])
+      // ✅ only include plans with both coach and athlete assigned
+      .filter(p => p.assignedCoachId && p.assignedAthleteId)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // attach exercises and compute status
+    for (const plan of plans) {
+      try {
+        const exRes = await WorkoutPlanExerciseServices.getByWorkoutPlan(plan.id);
+        const planExercises = exRes.data || [];
+        plan.exercises = planExercises;
+        const allDone = planExercises.length > 0 && planExercises.every(ex => Number(ex.isCompleted) === 1);
+        plan.status = allDone ? "Completed" : "Not Completed";
+      } catch {
+        plan.exercises = [];
+        plan.status = "No Exercises";
+      }
+    }
+
+    workouts.value = plans;
   } catch (err) {
     message.value = err?.response?.data?.message || "Failed to load workouts.";
   }
@@ -149,7 +165,6 @@ onMounted(async () => {
   await loadExercises();
 });
 </script>
-
 
 <template>
   <v-container>
@@ -174,7 +189,7 @@ onMounted(async () => {
             <td>{{ plan.title }}</td>
             <td>{{ getAthleteName(plan.assignedAthleteId) }}</td>
             <td>{{ toDisplayTime(plan.scheduledTime) }}</td>
-            <td>{{ displayCompletion(plan.isCompleted) }}</td>
+            <td>{{ plan.status }}</td>
             <td>
               <v-icon small class="mx-2" @click="openEditModal(plan)">
                 mdi-pencil

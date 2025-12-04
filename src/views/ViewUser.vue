@@ -81,7 +81,6 @@ onMounted(() => {
     <v-card>
       <v-card-text>
         <b>{{ message }}</b>
-        <!-- Search bar -->
         <v-text-field
           v-model="searchQuery"
           label="Search by name or email"

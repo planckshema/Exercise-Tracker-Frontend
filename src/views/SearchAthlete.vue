@@ -160,9 +160,6 @@ const cancelRequest = (athlete) => {
     });
 };
 
-
-
-
 retrieveAthletes();
 retrieveCoaches();
 setTimeout(retrieveRequests, 500);
