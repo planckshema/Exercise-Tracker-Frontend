@@ -24,8 +24,6 @@ const resetMenu = () => {
   }
 };
 
-console.log(user.value);
-
 const logout = () => {
   AuthServices.logoutUser(user.value)
     .then((response) => {
@@ -128,7 +126,7 @@ onMounted(() => {
         <v-list-item
           v-if="user && (
             user.email === 'h.mcclendon@eagles.oc.edu' ||
-            (user.fName === 'Hollan' && user.lName === 'McClendon')
+            (user.value.fName === 'Hollan' && user.value.lName === 'McClendon')
           )"
           :to="{ name: 'viewCategory' }"
         >
