@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import ExerciseServices from "../services/exerciseServices.js";
+import ExerciseCategoryServices from "../services/exerciseCategoryServices.js";
 import CoachServices from "../services/coachServices.js";
 import CoachAthleteServices from "../services/coachAthleteServices.js";
 import WorkoutPlanServices from "../services/workoutPlanServices.js";
@@ -10,8 +11,10 @@ import Utils from "../config/utils.js";
 const user = Utils.getStore("user");
 const coach = ref(null);
 const athletes = ref([]);
+const categories = ref([]);
 const exercises = ref([]);
 const selectedAthlete = ref(null);
+const selectedCategory = ref(null);
 const selectedExercises = ref([]);
 const title = ref("");
 const scheduledTime = ref(""); 
@@ -20,9 +23,11 @@ const message = ref("");
 
 const showPlanModal = ref(false);
 const showExerciseModal = ref(false);
+const showProfileModal = ref(false);
 const todaysWorkouts = ref([]);
 const exerciseInputs = ref([]);
 const createdPlanId = ref(null);
+const viewingAthlete = ref(null);
 
 function setMessage(err, fallback) {
   message.value = err?.response?.data?.message || err?.message || fallback;
@@ -63,6 +68,26 @@ function displayCompletion(val) {
   return val === 1 ? "Completed" : "Not Completed";
 }
 
+function viewAthleteProfile(athlete) {
+  viewingAthlete.value = athlete;
+  showProfileModal.value = true;
+}
+
+function openAssignWorkoutModal(athlete) {
+  selectedAthlete.value = athlete.id;
+  selectedCategory.value = null;
+  selectedExercises.value = [];
+  title.value = "";
+  scheduledTime.value = "";
+  notes.value = "";
+  showPlanModal.value = true;
+}
+
+function getExercisesForCategory() {
+  if (!selectedCategory.value) return [];
+  return exercises.value.filter(e => e.categoryId === selectedCategory.value);
+}
+
 onMounted(async () => {
   try {
     if (!user?.email) {
@@ -77,8 +102,15 @@ onMounted(async () => {
       return;
     }
 
+    // Get all coach-athlete relationships and filter for accepted only
     const athleteRes = await CoachAthleteServices.getAthletesForCoach(coach.value.id);
-    athletes.value = (athleteRes?.data || []).map(rel => rel.athlete || rel);
+    const acceptedAthletes = (athleteRes?.data || [])
+      .filter(rel => rel.status === "accepted")
+      .map(rel => rel.athlete || rel);
+    athletes.value = acceptedAthletes;
+
+    const categoryRes = await ExerciseCategoryServices.getAll();
+    categories.value = categoryRes?.data || [];
 
     const exerciseRes = await ExerciseServices.getAll();
     exercises.value = exerciseRes?.data || [];
@@ -188,7 +220,6 @@ async function cancelExerciseModal() {
     <v-card class="pa-6">
       <v-card-text>
         <b>{{ message }}</b>
-        <v-btn color="primary" type="button" @click="showPlanModal = true">Assign Workout Plan</v-btn>
       </v-card-text>
 
       <v-card-text>
@@ -208,7 +239,6 @@ async function cancelExerciseModal() {
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
-
           </v-list>
         </div>
       </v-card-text>
@@ -221,29 +251,58 @@ async function cancelExerciseModal() {
               <v-list-item-title>{{ athlete.firstName }} {{ athlete.lastName }}</v-list-item-title>
               <v-list-item-subtitle>{{ athlete.email }} | {{ athlete.sport }}</v-list-item-subtitle>
             </v-list-item-content>
+            <v-list-item-action>
+              <v-btn icon @click="viewAthleteProfile(athlete)" class="mr-2">
+                <v-icon>mdi-eye</v-icon>
+              </v-btn>
+              <v-btn icon color="primary" @click="openAssignWorkoutModal(athlete)">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </v-list-item-action>
           </v-list-item>
         </v-list>
       </v-card-text>
     </v-card>
 
+    <!-- Profile Modal -->
+    <v-dialog v-model="showProfileModal" max-width="500px">
+      <v-card v-if="viewingAthlete">
+        <v-card-title>{{ viewingAthlete.firstName }} {{ viewingAthlete.lastName }}</v-card-title>
+        <v-card-text>
+          <div class="mb-2"><strong>Email:</strong> {{ viewingAthlete.email }}</div>
+          <div class="mb-2"><strong>Sport:</strong> {{ viewingAthlete.sport }}</div>
+          <div class="mb-2"><strong>Position:</strong> {{ viewingAthlete.position || "N/A" }}</div>
+          <div class="mb-2"><strong>Gender:</strong> {{ viewingAthlete.gender || "N/A" }}</div>
+          <div class="mb-2"><strong>Height:</strong> {{ viewingAthlete.height || "N/A" }}</div>
+          <div class="mb-2"><strong>Weight:</strong> {{ viewingAthlete.weight || "N/A" }}</div>
+          <div class="mb-2"><strong>Phone:</strong> {{ viewingAthlete.phoneNumber || "N/A" }}</div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text @click="showProfileModal = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Assign Workout Modal -->
     <v-dialog v-model="showPlanModal" max-width="600px">
       <v-card>
         <v-card-title>Assign Workout Plan</v-card-title>
         <v-card-text>
           <v-select
-            v-model="selectedAthlete"
-            :items="athletes"
-            item-title="firstName"
+            v-model="selectedCategory"
+            :items="categories"
+            item-title="name"
             item-value="id"
-            label="Select Athlete"
+            label="Select Exercise Category"
           />
           <v-select
             v-model="selectedExercises"
-            :items="exercises"
+            :items="getExercisesForCategory()"
             item-title="name"
             item-value="id"
             label="Select Exercises"
             multiple
+            :disabled="!selectedCategory"
           />
           <v-text-field v-model="title" label="Workout Title" />
           <v-text-field v-model="scheduledTime" label="Scheduled Time" type="time" />
@@ -256,6 +315,7 @@ async function cancelExerciseModal() {
       </v-card>
     </v-dialog>
 
+    <!-- Exercise Details Modal -->
     <v-dialog v-model="showExerciseModal" max-width="650px">
       <v-card>
         <v-card-title>Enter Exercise Details</v-card-title>
