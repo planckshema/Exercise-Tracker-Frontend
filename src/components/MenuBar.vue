@@ -122,6 +122,13 @@ onMounted(() => {
         <v-list-item :to="{ name: 'nutrients' }">
           <v-list-item-title>Nutrients</v-list-item-title>
         </v-list-item>
+
+        <v-list-item
+          v-if="user && user.email === 'h.mcclendon@eagles.oc.edu'"
+          :to="{ name: 'viewCategory' }"
+        >
+          <v-list-item-title>Categories</v-list-item-title>
+        </v-list-item>
       </v-list>
 
       <v-divider class="my-4" />

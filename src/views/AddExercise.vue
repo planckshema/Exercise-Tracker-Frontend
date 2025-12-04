@@ -150,7 +150,7 @@ onMounted(() => {
           class="mr-4"
           @click="saveExercise"
         >
-          Save
+          Add
         </v-btn>
 
         <v-btn color="error" class="mr-4" @click="cancel">Cancel</v-btn>

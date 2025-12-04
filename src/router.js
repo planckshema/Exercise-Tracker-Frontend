@@ -11,6 +11,7 @@ import NewAthleteUser from "./views/NewAthleteUser.vue";
 import SearchAthlete from "./views/SearchAthlete.vue";
 import Athlete from "./views/Athlete.vue";
 import AddExercise from "./views/AddExercise.vue";
+import ViewCategory from "./views/ViewCategory.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -72,7 +73,6 @@ const router = createRouter({
       component: AddExercise,
       props: true,
     },
-  ]
 });
 
 export default router;

@@ -58,8 +58,8 @@ const filteredExercises = computed(() => {
 
 
 const goToAddExercise = () => {
-   if (selectedCategoryId.value) 
-   {
+  if (selectedCategoryId.value) 
+  {
     router.push({ name: "addExercise"});
   }
   else 
