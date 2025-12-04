@@ -43,9 +43,6 @@ const saveCoach = () => {
     } else {
       message.value = "Coach created, but no ID returned.";
     }
-    //   coach.value.id = response.data.id;
-    //   console.log("add " + response.data);
-    //   router.push({ name: "exercises" });
     })
     .catch((e) => {
       message.value = e.response.data.message;

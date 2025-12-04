@@ -85,7 +85,7 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/myWorkout",
+      path: "/myWorkout/:workoutPlanId",
       name: "myWorkout",
       component: MyWorkoutInfo,
       props: true,
